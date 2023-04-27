@@ -8,23 +8,31 @@ This also opens up the possibility to finally create proper packages, while gett
 
 ```sh
 export STEAM_INSTALL_DIR="/usr/libexec/steam"
-export STEAM_DATA_DIR="${HOME}/.local/share/Steam"
-export STEAM_RUN_DIR="${XDG_RUNTIME_DIR}"
+export STEAM_DATA_DIR="${HOME}/.local/share/steam"
+export STEAM_RUN_DIR="${XDG_RUNTIME_DIR}/steam"
 
-export ORIG_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+MOUNT_POINT="${STEAM_RUN_DIR}/.steam"
 
-mkdir -p ~/.steam
-steam_xdg_enforcer ~/.steam
+mkdir -p "${MOUNT_POINT}" "${STEAM_DATA_DIR}"
+
+./steam_xdg_enforcer "${MOUNT_POINT}"
 
 pushd .
 
 cd "${STEAM_INSTALL_DIR}"
 
-export LD_LIBRARY_PATH="${STEAM_INSTALL_DIR}/ubuntu12_32:${STEAM_INSTALL_DIR}/ubuntu12_32/panorama:${LD_LIBRARY_PATH-}"
-ubuntu12_32/steam -noverifyfiles -nobootstrapupdate -skipinitialbootstrap -norepairfiles -nodircheck -inhibitbootstrap
-export LD_LIBRARY_PATH="$ORIG_LD_LIBRARY_PATH"
+ORIG_HOME="${HOME}"
+ORIG_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 
-umount ~/.steam
+export HOME="${STEAM_RUN_DIR}"
+export LD_LIBRARY_PATH="${STEAM_INSTALL_DIR}/ubuntu12_32:${STEAM_INSTALL_DIR}/ubuntu12_32/panorama:${LD_LIBRARY_PATH-}"
+
+ubuntu12_32/steam -noverifyfiles -nobootstrapupdate -skipinitialbootstrap -norepairfiles -nodircheck -inhibitbootstrap
+
+export LD_LIBRARY_PATH="${ORIG_LD_LIBRARY_PATH}"
+export HOME="${ORIG_HOME}"
+
+umount "${MOUNT_POINT}"
 
 popd
 ```
