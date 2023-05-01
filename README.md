@@ -4,9 +4,10 @@ Born shortly after the 10th anniversary of ValveSoftware/steam-for-linux#1890, t
 
 This also opens up the possibility to finally create proper packages, while getting rid of the insane bootstrapping process.
 
-## Rationale
+## About `~/.steam`
 
-### `~/.steam`
+<details>
+<summary>Problem</summary>
 
 The infamous path is hardcoded in the `steam` binary. The relevant code is pretty much as follows:
 
@@ -35,19 +36,24 @@ prw------- 1 user user   0 Apr 22 01:01 steam.pipe
 
 Basically, the undesired directory is still around strictly for compatibility with legacy installations.
 
-<details> 
-<summary>Image</summary>
-
 ![](assets/always_has_been.png)
 </details>
 
-### Installation scope
+<details>
+<summary>Solution</summary>
 
-Valve publish their own Debian/Ubuntu package, which is then picked up and polished by various distributions.
+Setting `HOME` to an arbitrary path is a popular workaround, but there are a few quirks with it:
 
-However, it doesn't contain anything more than a bootstrapper called `steam`.
+1. Anything that "normally" resides in `~` will be redirected as well, which may be desiderable. However, it is a problem for configuration files, such as the sound server's.  
+   Symlinking the directories (e.g. `~/.config/pulse/`) and/or files generally works.
+2. `.steam` still needs to be "real" (along with its structure), albeit at another location. This means that you have to either keep it around or rebuild it every time you want to launch Steam.
+3. Steam may alter the directory's contents without a warning. This is going to be a problem if you want the installation to reside at a location other than the default (`~/.local/share/Steam`).
 
-This program allows you to achieve a system-wide installation, 
+With this program you can have an actually empty `.steam`, meaning that you can just create it when launching Steam and delete it right after shutting it down.
+
+If you don't want to see `.steam` in your home folder at all, you can still use an arbitrary `HOME`.  
+Please note though that the quirk described in 1. still applies, along with its fix.
+</details>
 
 ## Example launch script
 
