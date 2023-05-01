@@ -139,16 +139,14 @@ char *path_get_real(const char *target) {
 		}
 	}
 
-	if (cwk_path_is_relative(target)) {
+	if (cwk_path_is_relative(target) || !strneq(target, "/root", 5)) {
 		return target_norm;
 	}
 
-	if (strneq(target, "/root", 5)) {
-		target += 5;
+	target += 5;
 
-		if (target_len <= 5 || target[0] == '/') {
-			ret = build_path(target, &(struct PathSpec){ .match = "\x03",.redir = target, .root = g_roots.install });
-		}
+	if (target_len <= 5 || target[0] == '/') {
+		ret = build_path(target, &(struct PathSpec){ .match = "\x03",.redir = target, .root = g_roots.install });
 	}
 RET:
 	free(target_norm);
